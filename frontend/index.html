@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SentinelDoc — Sensitive Data Detection &amp; Compliance</title>
+  <meta name="description" content="AI-powered sensitive data detection and compliance assistant. Upload documents to identify PII, assess risk, and generate compliance reports." />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="app-shell" id="app">
+
+    <!-- ================================================================
+         TOP BAR
+         ================================================================ -->
+    <header class="top-bar">
+      <div class="top-bar__brand">
+        <div class="top-bar__logo">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2l7 4v5c0 5.25-3.5 9.74-7 11-3.5-1.26-7-5.75-7-11V6l7-4z"/>
+            <path d="M9 12l2 2 4-4" stroke-width="2.5"/>
+          </svg>
+        </div>
+        SentinelDoc
+      </div>
+
+      <div class="top-bar__meta">
+        <div class="top-bar__doc-name hidden" id="topbar-doc">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+          <span id="topbar-filename"></span>
+        </div>
+
+        <button class="top-bar__new-btn hidden" id="new-analysis-btn" type="button" title="Start new analysis">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          New analysis
+        </button>
+      </div>
+    </header>
+
+    <!-- ================================================================
+         MAIN CONTENT AREA
+         ================================================================ -->
+    <main class="main-content">
+
+      <!-- ---- UPLOAD SCREEN ---- -->
+      <section class="upload-screen" id="upload-screen">
+        <div class="upload-container">
+          <div class="upload-header">
+            <h1 class="upload-header__title">Analyze your document</h1>
+            <p class="upload-header__subtitle">
+              Upload a document to detect sensitive data, assess compliance risk, and generate actionable remediation guidance.
+            </p>
+            <!-- Feature pills -->
+            <div class="upload-features">
+              <span class="upload-feature">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2l7 4v5c0 5.25-3.5 9.74-7 11-3.5-1.26-7-5.75-7-11V6l7-4z"/></svg>
+                PII Detection
+              </span>
+              <span class="upload-feature">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                Risk Scoring
+              </span>
+              <span class="upload-feature">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                AI Q&amp;A
+              </span>
+              <span class="upload-feature">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                Redaction
+              </span>
+            </div>
+          </div>
+
+          <!-- Drop zone -->
+          <div class="drop-zone" id="drop-zone">
+            <div class="drop-zone__icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="17 8 12 3 7 8"/>
+                <line x1="12" y1="3" x2="12" y2="15"/>
+              </svg>
+            </div>
+            <p class="drop-zone__label">Drag &amp; drop or <strong>browse files</strong></p>
+            <p class="drop-zone__hint">.pdf  .txt  .csv</p>
+            <input type="file" id="file-input" accept=".pdf,.txt,.csv" />
+          </div>
+
+          <!-- File preview -->
+          <div class="file-preview" id="file-preview">
+            <div class="file-preview__icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+              </svg>
+            </div>
+            <div class="file-preview__info">
+              <div class="file-preview__name" id="preview-name"></div>
+              <div class="file-preview__size" id="preview-size"></div>
+            </div>
+            <button class="file-preview__remove" id="remove-file-btn" type="button" title="Remove file">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+
+          <!-- Error message -->
+          <div class="upload-error" id="upload-error">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+            </svg>
+            <span id="upload-error-msg"></span>
+          </div>
+
+          <!-- Analyze button -->
+          <button class="analyze-btn" id="analyze-btn" type="button">
+            Analyze Document
+          </button>
+        </div>
+      </section>
+
+      <!-- ---- PROCESSING OVERLAY ---- -->
+      <section class="processing-overlay" id="processing-screen">
+        <div class="processing-stages" id="processing-stages">
+          <div class="processing-stage" id="stage-extract" data-stage="extract">
+            <div class="stage-indicator">
+              <div class="stage-spinner"></div>
+              <svg class="stage-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            Extracting text from document
+          </div>
+          <div class="processing-stage" id="stage-detect" data-stage="detect">
+            <div class="stage-indicator">
+              <div class="stage-spinner"></div>
+              <svg class="stage-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            Detecting sensitive entities
+          </div>
+          <div class="processing-stage" id="stage-risk" data-stage="risk">
+            <div class="stage-indicator">
+              <div class="stage-spinner"></div>
+              <svg class="stage-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            Calculating risk score
+          </div>
+          <div class="processing-stage" id="stage-summary" data-stage="summary">
+            <div class="stage-indicator">
+              <div class="stage-spinner"></div>
+              <svg class="stage-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            Generating compliance summary
+          </div>
+        </div>
+        <p class="processing-message">This may take a few seconds — your document is being analyzed locally.</p>
+      </section>
+
+      <!-- ---- RESULTS DASHBOARD ---- -->
+      <section class="results-screen" id="results-screen">
+
+        <!-- Risk Summary Card -->
+        <div class="risk-card" id="risk-card">
+          <div class="risk-badge" id="risk-badge">
+            <span id="risk-score-num"></span>
+          </div>
+          <div class="risk-info">
+            <div class="risk-level" id="risk-level-text"></div>
+            <div class="risk-detail" id="risk-detail-text"></div>
+            <div class="risk-breakdown" id="risk-breakdown">
+              <span class="risk-breakdown__item">
+                <span class="risk-dot risk-dot--high"></span>
+                <span id="breakdown-high">0</span> high
+              </span>
+              <span class="risk-breakdown__item">
+                <span class="risk-dot risk-dot--medium"></span>
+                <span id="breakdown-medium">0</span> medium
+              </span>
+              <span class="risk-breakdown__item">
+                <span class="risk-dot risk-dot--low"></span>
+                <span id="breakdown-low">0</span> low
+              </span>
+            </div>
+          </div>
+          <div class="risk-actions">
+            <button class="btn btn--primary" id="download-btn" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              Download Redacted
+            </button>
+            <button class="btn btn--secondary" id="view-report-btn" type="button">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+              </svg>
+              Full Report
+            </button>
+          </div>
+        </div>
+
+        <!-- Findings Section -->
+        <div class="findings-section" id="findings-section">
+          <div class="section-header">
+            <h2 class="section-title">Findings by Entity Type</h2>
+            <span class="section-count" id="total-findings-count"></span>
+          </div>
+          <div class="entity-grid" id="entity-grid"></div>
+
+          <div class="findings-list hidden" id="findings-list">
+            <div class="findings-list__header">
+              <span>Entity Type</span>
+              <span>Risk</span>
+              <span>Confidence</span>
+              <span>Masked Value</span>
+            </div>
+            <div class="findings-list__items" id="findings-items"></div>
+          </div>
+        </div>
+
+        <!-- AI Summary -->
+        <div class="summary-section" id="summary-section">
+          <div class="section-header">
+            <h2 class="section-title">Compliance Summary</h2>
+          </div>
+          <div class="summary-panels" id="summary-panels"></div>
+        </div>
+
+        <!-- Anonymizer Section (new /anonymize endpoint) -->
+        <div class="anonymizer-section" id="anonymizer-section">
+          <div class="anonymizer-header">
+            <div class="anonymizer-header__left">
+              <div class="anonymizer-header__icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </div>
+              <div class="anonymizer-header__text">
+                <h3>Anonymization Preview</h3>
+                <p>Presidio-powered anonymization with configurable strategies</p>
+              </div>
+            </div>
+            <div class="strategy-selector" id="strategy-selector">
+              <button class="strategy-btn active" data-strategy="replace" type="button">Replace</button>
+              <button class="strategy-btn" data-strategy="mask" type="button">Mask</button>
+              <button class="strategy-btn" data-strategy="hash" type="button">Hash</button>
+              <button class="strategy-btn" data-strategy="redact" type="button">Redact</button>
+            </div>
+          </div>
+          <div class="anonymizer-body">
+            <div class="anonymizer-preview" id="anonymizer-preview">
+              <span style="color:var(--text-tertiary)">Select a strategy above to preview the anonymized document.</span>
+            </div>
+            <div class="anonymizer-actions">
+              <button class="btn btn--ghost" id="anonymize-download-btn" type="button" disabled>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+                Download Anonymized
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Chat / Q&A Panel -->
+        <div class="chat-section" id="chat-section">
+          <div class="chat-header">
+            <span class="chat-header__title">Document Q&amp;A</span>
+            <span class="chat-header__badge">Redacted context</span>
+          </div>
+
+          <div class="chat-messages" id="chat-messages">
+            <div class="chat-empty" id="chat-empty">
+              <svg class="chat-empty__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+              </svg>
+              <span class="chat-empty__text">Ask questions about your document.<br/>Responses are based on redacted text only.</span>
+            </div>
+          </div>
+
+          <div class="suggested-questions" id="suggested-questions">
+            <button class="suggested-q" data-q="What sensitive data exists in the document?" type="button">What sensitive data exists?</button>
+            <button class="suggested-q" data-q="How many email addresses are present?" type="button">How many emails?</button>
+            <button class="suggested-q" data-q="Summarize this document." type="button">Summarize this document</button>
+            <button class="suggested-q" data-q="What compliance risks are identified?" type="button">Compliance risks?</button>
+          </div>
+
+          <div class="chat-input-area">
+            <div class="chat-input-wrap">
+              <input
+                type="text"
+                class="chat-input"
+                id="chat-input"
+                placeholder="Ask about this document…"
+                autocomplete="off"
+              />
+              <button class="chat-send-btn" id="chat-send-btn" type="button" title="Send question" disabled>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Audit Log -->
+        <div class="audit-panel" id="audit-panel">
+          <div class="audit-header" id="audit-toggle">
+            <div class="audit-header__left">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="12 8 12 12 14 14"/>
+                <circle cx="12" cy="12" r="10"/>
+              </svg>
+              Audit Log
+            </div>
+            <svg class="audit-header__chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </div>
+          <div class="audit-body">
+            <div class="audit-list" id="audit-list"></div>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>

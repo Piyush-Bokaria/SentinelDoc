@@ -1,0 +1,77 @@
+# ----- Environment / secrets -----
+.env
+.env.local
+*.env
+
+# ----- Python -----
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# ----- Virtual environments -----
+venv/
+myenv/
+env/
+ENV/
+.venv/
+
+# ----- Project data (uploads, generated files, local DB if added later) -----
+data/
+!data/.gitkeep
+*.db
+*.sqlite
+*.sqlite3
+
+# ----- FAISS indices / model artifacts -----
+*.index
+*.faiss
+*.pkl
+
+# ----- Uploaded/generated test files (keep sample docs, ignore runtime uploads) -----
+tests/sample_docs/*.pdf
+tests/sample_docs/*.csv
+!tests/sample_docs/sample.txt
+
+# ----- spaCy models (installed via pip, don't commit) -----
+*.whl
+
+# ----- IDE / editor -----
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# ----- Logs -----
+*.log
+
+# ----- OS -----
+Thumbs.db
+
+# ----- Docker -----
+*.pid
+
+# ----- Jupyter (if used for experimentation) -----
+.ipynb_checkpoints/
+
+# ----- Coverage / test artifacts -----
+.coverage
+.pytest_cache/
+htmlcov/
