@@ -1,0 +1,20 @@
+CONFIDENTIAL - INTERNAL USE ONLY
+
+Employee Record
+Employee ID: EMP12346
+Name: Jane Doe
+Aadhaar: 1234 5678 9013
+PAN: ABCDE1234G
+Email: jane.doe@company.com
+Phone: +91 9876543211
+
+Bank Details:
+Account Number: 123456789013
+IFSC: HDFC0001234
+
+System Access:
+API Key: sk-abc123def456ghi789jkl012mno346
+Password: pwd=SuperSecret123@
+
+This document contains confidential salary information and must not be
+shared outside the HR department without written approval.

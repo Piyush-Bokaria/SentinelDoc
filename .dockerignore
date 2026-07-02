@@ -1,0 +1,15 @@
+myenv/
+venv/
+.venv/
+env/
+__pycache__/
+*.pyc
+.git/
+.gitignore
+.env
+data/
+tests/
+.vscode/
+.idea/
+*.md
+README.md
