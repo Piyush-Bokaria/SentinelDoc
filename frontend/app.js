@@ -97,6 +97,13 @@ const dom = {
   auditPanel:       $('#audit-panel'),
   auditToggle:      $('#audit-toggle'),
   auditList:        $('#audit-list'),
+
+  // History
+  historyBtn:       $('#history-btn'),
+  historyCount:     $('#history-count'),
+  historyPanel:     $('#history-panel'),
+  historyList:      $('#history-list'),
+  historyEmpty:     $('#history-empty'),
 };
 
 // =============================================================================
@@ -426,6 +433,7 @@ async function uploadFile(file) {
     state.uploadData = data;
     state.chatHistory = [];
     state.anonymizedText = null;
+    addToHistory(data);
 
     // Brief pause so user sees completion
     await new Promise(r => setTimeout(r, 600));
@@ -445,6 +453,7 @@ async function uploadFile(file) {
     clearInterval(stageTimer);
     resetStages();
     showScreen('upload');
+    renderHistoryPanel();
     showError(err.message || 'An unexpected error occurred during analysis.');
     dom.analyzeBtn.disabled = false;
   }
@@ -976,6 +985,7 @@ function resetToUpload() {
   clearFile();
   resetStages();
   showScreen('upload');
+  renderHistoryPanel();
 
   // Chat
   dom.chatMessages.innerHTML = '';
@@ -1001,4 +1011,150 @@ function resetToUpload() {
 // Initialization
 // =============================================================================
 
+// =============================================================================
+// Document History (client-side, backed by localStorage)
+// =============================================================================
+
+const HISTORY_KEY = 'sentineldoc_history';
+const HISTORY_LIMIT = 10;
+
+/** @type {Array<{docId:string, filename:string, riskLevel:string, riskScore:number, totalFindings:number, timestamp:string}>} */
+let docHistory = [];
+
+function loadHistory() {
+  try {
+    const raw = localStorage.getItem(HISTORY_KEY);
+    docHistory = raw ? JSON.parse(raw) : [];
+  } catch {
+    docHistory = [];
+  }
+}
+
+function saveHistory() {
+  try {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(docHistory));
+  } catch {
+    // Storage unavailable - fail silently, history just won't persist
+  }
+}
+
+function addToHistory(uploadData) {
+  docHistory = docHistory.filter(h => h.docId !== uploadData.doc_id);
+  docHistory.unshift({
+    docId: uploadData.doc_id,
+    filename: uploadData.filename,
+    riskLevel: uploadData.risk_level,
+    riskScore: uploadData.risk_score,
+    totalFindings: uploadData.total_findings,
+    timestamp: new Date().toISOString(),
+  });
+  docHistory = docHistory.slice(0, HISTORY_LIMIT);
+  saveHistory();
+  renderHistoryPanel();
+}
+
+function renderHistoryPanel() {
+  dom.historyBtn.classList.toggle('hidden', docHistory.length === 0);
+  dom.historyCount.textContent = docHistory.length || '';
+  dom.historyList.innerHTML = '';
+
+  if (docHistory.length === 0) {
+    dom.historyEmpty.classList.remove('hidden');
+    return;
+  }
+  dom.historyEmpty.classList.add('hidden');
+
+  for (const entry of docHistory) {
+    const key = riskKey(entry.riskLevel);
+    const isActive = entry.docId === state.docId;
+    const el = document.createElement('div');
+    el.className = `history-item ${isActive ? 'history-item--active' : ''}`;
+    el.innerHTML = `
+      <span class="risk-dot risk-dot--${key}"></span>
+      <div class="history-item__info">
+        <div class="history-item__name" title="${escapeHtml(entry.filename)}">${escapeHtml(entry.filename)}</div>
+        <div class="history-item__meta">
+          <span>${entry.totalFindings} findings</span>·<span>${formatTime(entry.timestamp)}</span>
+        </div>
+      </div>
+    `;
+    el.addEventListener('click', () => switchToDocument(entry.docId));
+    dom.historyList.appendChild(el);
+  }
+}
+
+/**
+ * Load a previously analyzed document from the backend by doc_id
+ * and render it, without re-running the upload/analysis pipeline.
+ * @param {string} docId
+ */
+async function switchToDocument(docId) {
+  dom.historyPanel.classList.remove('open');
+  if (docId === state.docId) return;
+
+  try {
+    const res = await fetch(`/report/${docId}`);
+    if (!res.ok) {
+      if (res.status === 404) {
+        showError('That document is no longer available (server may have restarted).');
+        docHistory = docHistory.filter(h => h.docId !== docId);
+        saveHistory();
+        renderHistoryPanel();
+      }
+      return;
+    }
+
+    const report = await res.json();
+
+    const highCount = report.findings.filter(f => f.risk_tier === 'high').length;
+    const mediumCount = report.findings.filter(f => f.risk_tier === 'medium').length;
+    const lowCount = report.findings.filter(f => f.risk_tier === 'low').length;
+
+    const reconstructed = {
+      doc_id: report.doc_id,
+      filename: report.filename,
+      total_findings: report.total_findings,
+      counts_by_type: report.counts_by_type,
+      risk_level: report.risk_level,
+      risk_score: report.risk_score,
+      risk_breakdown: {
+        high_risk_findings: highCount,
+        medium_risk_findings: mediumCount,
+        low_risk_findings: lowCount,
+      },
+      summary: report.summary,
+    };
+
+    state.docId = report.doc_id;
+    state.filename = report.filename;
+    state.report = report;
+    state.uploadData = reconstructed;
+    state.chatHistory = [];
+    state.anonymizedText = null;
+
+    renderResults(reconstructed);
+    showScreen('results');
+    fetchAuditLog();
+    fetchAnonymized('replace');
+    renderHistoryPanel();
+  } catch (err) {
+    showError('Failed to load document: ' + err.message);
+  }
+}
+
+// -- Event listeners --
+
+dom.historyBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  dom.historyPanel.classList.toggle('open');
+});
+
+document.addEventListener('click', (e) => {
+  if (!dom.historyPanel.contains(e.target) && !dom.historyBtn.contains(e.target)) {
+    dom.historyPanel.classList.remove('open');
+  }
+});
+
+loadHistory();
+renderHistoryPanel();
 showScreen('upload');
