@@ -6,8 +6,8 @@ AI-written compliance summary, and answers natural-language questions about
 the document — without ever exposing raw sensitive values back to the user,
 even under adversarial prompting.
 
-**Live deployment:** [ADD YOUR DEPLOYED URL HERE]
-**Demo video:** [ADD YOUR VIDEO LINK HERE]
+**Live deployment:** [https://sentineldoc.onrender.com/]
+**Demo video:** []
 
 > Note: the deployment runs on a free-tier instance that spins down after
 > ~15 minutes of inactivity. The first request after idle time may take
@@ -152,7 +152,7 @@ given the project deadline — see Future Improvements.
 ### Option A — Local (Python)
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/Piyush-Bokaria/SentinelDoc.git
 cd SentinelDoc
 
 python -m venv myenv
@@ -160,7 +160,7 @@ myenv\Scripts\activate        # Windows
 # source myenv/bin/activate   # macOS/Linux
 
 pip install -r requirements.txt
-python -m spacy download en_core_web_lg
+python -m spacy download en_core_web_sm
 
 # Create .env from the example and add your Gemini API key
 copy .env.example .env        # Windows
@@ -262,7 +262,7 @@ summary → interactive Q&A) directly in the terminal.
 ## Tech Stack
 
 Python, FastAPI, Microsoft Presidio (analyzer + anonymizer), spaCy
-(`en_core_web_lg`), Google Gemini API (generation + embeddings), FAISS,
+(`en_core_web_sm`), Google Gemini API (generation + embeddings), FAISS,
 pdfplumber, pandas, vanilla HTML/CSS/JS frontend, Docker.
 
 ---
